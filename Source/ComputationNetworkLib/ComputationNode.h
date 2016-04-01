@@ -34,7 +34,8 @@
 #define CNTK_MODEL_VERSION_3 3
 #define CNTK_MODEL_VERSION_4 4 // PastValue
 #define CNTK_MODEL_VERSION_5 5 // ND convolution and pooling
-#define CURRENT_CNTK_MODEL_VERSION CNTK_MODEL_VERSION_5
+#define CNTK_MODEL_VERSION_6 6 // Batch norm blending
+#define CURRENT_CNTK_MODEL_VERSION CNTK_MODEL_VERSION_6
 
 extern bool g_shareNodeValueMatrices;
 
@@ -1102,6 +1103,7 @@ public:
     MatrixBasePtr ValuePtr() const override final { return m_value; }    // readers want this as a shared_ptr straight
     // Note: We cannot return a const& since returning m_value as a MatrixBasePtr is a type cast that generates a temporary. Interesting.
 
+    MatrixBasePtr GradientPtr() const { return m_gradient; }
     const Matrix<ElemType>& Gradient() const { return *m_gradient; }
     Matrix<ElemType>&       Gradient()       { return *m_gradient; }
 

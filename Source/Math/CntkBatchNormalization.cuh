@@ -508,18 +508,10 @@ struct ComputeSpatialBatchMeanAndInvStdDev
 
 //--------------------------------------------------------------------
 // Forward propagation
-// There are 2 main functions, BatchNormalizationForwardTraining and BatchNormalizationForwardInference.
-// BatchNormalizationForwardTraining is used during the training while 
-// BatchNormalizationForwardInference - during inference only.
 // All functions accept input/outputs tensors in column-major format where each column is a vector of a minibatch.
 // In convolutional case (i.e. spatial=true), each vector is in CHW format where W dimension has stride = 1.
 // Tensors for biases and inverse stddevs have dimensions that equal to vector dimension in non-convolutional (i.e. spatial=false)
 // or Cx1x1 in convolutional case.
-// The *Training function performs update of saveMean and saveInvStdDev tensors with values computed for the _current_ minibatch.
-// These values are then used in backpropagation. 
-// It also updates runMean and runInvStdDev with running mean/var computed over all minibatches. 
-// These values are used in inference/evaluation phase.
-// The *Inference function computes outputs based on pre-computed mean and inv stddev.
 //--------------------------------------------------------------------
 
 template <int BlockDimX, int BlockDimY, bool Spatial, int U, typename ElemType>
@@ -611,17 +603,17 @@ struct NormalizeBatchTraining
         const int BlockDimY = 4 * U;
         auto bdim = dim3(BlockDimX, BlockDimY);
         // Create a grid that has uses striding in y-dimension to cover whole minibatch.
-        auto gdim = dim3(static_cast<unsigned int>(RoundUpToMultiple(vectorSize, BlockDimX * U)));
+        auto gdim = dim3((unsigned int)RoundUpToMultiple(vectorSize, BlockDimX * U));
         if (spatial)
         {
             kNormalizeBatchTraining<BlockDimX, BlockDimY, true, U><<<gdim, bdim, 0, stream>>>(
-                static_cast<int>(vectorSize), static_cast<int>(spatialSize), static_cast<int>(batchSize), x, y, bnScale, bnBias,
+                (int)vectorSize, (int)spatialSize, (int)batchSize, x, y, bnScale, bnBias,
                 batchMean, batchInvStdDev);
         }
         else
         {
             kNormalizeBatchTraining<BlockDimX, BlockDimY, false, U><<<gdim, bdim, 0, stream>>>(
-                static_cast<int>(vectorSize), static_cast<int>(spatialSize), static_cast<int>(batchSize), x, y, bnScale, bnBias,
+                (int)vectorSize, (int)spatialSize, (int)batchSize, x, y, bnScale, bnBias,
                 batchMean, batchInvStdDev);
         }
     }

@@ -586,7 +586,6 @@ CNTK_SRC =\
 	$(SOURCEDIR)/CNTK/BrainScript/BrainScriptEvaluator.cpp \
 	$(SOURCEDIR)/CNTK/BrainScript/BrainScriptParser.cpp \
 	$(SOURCEDIR)/CNTK/BrainScript/BrainScriptTest.cpp \
-	$(SOURCEDIR)/CNTK/BrainScript/ExperimentalNetworkBuilder.cpp \
 	$(SOURCEDIR)/Common/BestGpu.cpp \
 	$(SOURCEDIR)/Common/MPIWrapper.cpp \
 
@@ -639,13 +638,15 @@ DEP := $(patsubst %.o, %.d, $(OBJ))
 # will result in the rebuild.
 -include ${DEP}
 
-$(OBJDIR)/%.o : %.cu Makefile
+MAKEFILES :=  Makefile $(BUILD_TOP)/Config.make
+$(OBJDIR)/%.o : %.cu $(MAKEFILES)
+
 	@echo $(SEPARATOR)
 	@echo creating $@ for $(ARCH) with build type $(BUILDTYPE)
 	@mkdir -p $(dir $@)
 	$(NVCC) -c $< -o $@ $(COMMON_FLAGS) $(CUFLAGS) $(INCLUDEPATH:%=-I%) -Xcompiler "-fPIC -Werror"
 
-$(OBJDIR)/%.o : %.cpp Makefile
+$(OBJDIR)/%.o : %.cpp $(MAKEFILES)
 	@echo $(SEPARATOR)
 	@echo creating $@ for $(ARCH) with build type $(BUILDTYPE)
 	@mkdir -p $(dir $@)

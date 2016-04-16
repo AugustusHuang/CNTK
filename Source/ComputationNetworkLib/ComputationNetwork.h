@@ -52,10 +52,11 @@ public:
         m_randomSeedOffset(0),
           m_isCompiled(false),
           m_areMatricesAllocated(false),
-        m_pMBLayoutOfNetwork(make_shared<MBLayout>()),
+        m_pMBLayoutOfNetwork(make_shared<MBLayout>(1,0, L"*")),
         m_environment(make_shared<ComputationEnvironment>())
     {
     }
+
     ComputationNetwork(DEVICEID_TYPE deviceId)
         : ComputationNetwork()
     {
@@ -288,6 +289,8 @@ public:
     // This returns max number of columns over the feature nodes.
     // Note that if we have multiple slices, MB size != #frames.
     // BUGBUG: This will break once we have inconsistent layouts.
+    // BUGBUG: The number computed here is completely off (it the layout has gaps
+    // they will also be counted towards the actualMBSize)
     size_t DetermineActualMBSizeFromFeatures() const
     {
         size_t actualMBSize = 0;
